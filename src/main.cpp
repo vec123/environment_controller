@@ -3,47 +3,36 @@
 #include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <functions.h>
 
-#include <IRremoteESP8266.h>
-#include <IRsend.h>
-#include <ir_Toshiba.h>
-#include <FS.h>
+
+#include <TempSensors.h>
+#include <Moisturesensors.h>
+#include <AC-Control.h>
+#include <WaterPump.h>
+#include <WiFi.h>
 
 #define LED 2
-#define DHTPIN 12          
+#define DHTPIN 12   
+#define DHTTYPE  DHT11            
 #define InfarredLED 4
 #define WaterPumpPIN 5
 
-
-#define DHTTYPE    DHT11     
-
-int MoisturePIN = A0;
-int moisture_value = 0;
-
-// Replace with your network credentials
+#define MoisturePIN A0
 
 const char* ssid = "Vodafonemagneticjesus";
 const char* password = "Inthelandofnails:)";
+DHT dht = DHT_sensor_init(DHTPIN, DHTTYPE);
 
+//Dth_sensor dht1(DHTPIN,DHTTYPE);
+IRToshibaAC ac = init_IR_AC_Control(InfarredLED);
+
+
+//variables to capture:
 float t = 0.0;
 float h = 0.0;
 String waterpump_onoff = "off";
 String ac_onoff = "off";
 float ac_commandtemp = 25;
-
-unsigned long previousMillis = 0;
-const long interval = 100; 
-
-
-//const char* ssid = "Redmi 10";
-//const char* password = "bu5tfzaaxav9r5b";
-
-DHT dht(DHTPIN, DHTTYPE);
-AsyncWebServer server(80);
-IRToshibaAC ac(InfarredLED); 
 
 String processor(const String& var){
           //Serial.println(var);
@@ -54,31 +43,18 @@ String processor(const String& var){
               return String(h);
           }
           return String();
-}
+    }
 
 
-/* 
-- would like to use in main and eventually move to header but does not work
-void server_setup(AsyncWebServer server){
-      Serial.print("1");
-      server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/website.html", String(), false, processor);
-      });
-      Serial.print("2");
-      // Route to load style.css file
-      server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/style.css", "text/css");
-      });
-     // Route for root / web page
-      server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send_P(200, "text/plain", String(t).c_str());
-      });
-      server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send_P(200, "text/plain", String(h).c_str());
-      });
-      server.begin();
-  }
-*/
+
+
+
+//const char* ssid = "Redmi 10";
+//const char* password = "bu5tfzaaxav9r5b";
+
+//DHT dht(DHTPIN, DHTTYPE);
+
+AsyncWebServer server(80);
 
 
 #include "HTTPSRedirect.h"
@@ -93,23 +69,27 @@ const char* fingerprint = "";
 String url = String("/macros/s/") + GScriptId + "/exec";
 HTTPSRedirect* client = nullptr;
 
+unsigned long previousMillis = 0;
+const long interval = 100; 
+
 void setup(){
-
+      //buildin LED
+      pinMode(LED, OUTPUT);
       Serial.begin(115200);
-
-      /*-Setups in order:
-          -WiFi
-          -SPIFFS
-          -HTML-server
-          -AC
-          -DHT-sensor
-          -Infarred LED
-          -builtin LED
-    */
 
       //WiFi
       WiFi_setup(ssid, password);
       Serial.print(WiFi.localIP());
+      
+      //DHT-Sensor
+      dht = DHT_sensor_setup(dht);
+      //Moisture-Sensor
+      Setup_moisture_reader(MoisturePIN);
+      //AC
+      ac = AC_setup(ac);
+      //Waterpump
+      Waterpump_setup(WaterPumpPIN);
+
 
      //SPIFFS
       Serial.print("0");
@@ -119,6 +99,8 @@ void setup(){
       }
 
       //HTML-server
+
+
       server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/website.html", String(), false, processor);
       });
@@ -150,31 +132,9 @@ void setup(){
 
     server.begin();
 
-
-      //AC
-      ac.on();
-      ac.setFan(1);
-      ac.setMode(kToshibaAcCool);
-      ac.setTemp(26);
-
-      //DHT-Sensor
-      dht.begin();
-      //Moisture-Sensor
-      pinMode(MoisturePIN,INPUT);
-
-      //infarredLED
-      pinMode(InfarredLED, OUTPUT);
-
-      //buildin LED
-      pinMode(LED, OUTPUT);
-      
-      //buildin LED
-      pinMode(WaterPumpPIN, OUTPUT);
-
-      delay(3000);
-      //HTTPS-redirect
-        client = new HTTPSRedirect(httpsPort);
-        client->setInsecure();
+   //HTTPS-redirect
+    client = new HTTPSRedirect(httpsPort);
+    client->setInsecure();
         client->setPrintResponseBody(true);
         client->setContentTypeHeader("application/json");
   
@@ -220,35 +180,13 @@ void loop() {
   if (currentMillis - previousMillis >= interval) {
     // save the last time you updated the DHT values
     previousMillis = currentMillis;
-    // Read temperature as Celsius (the default)
-    t =  DHT_temperature_reader(dht);
-    h =  DHT_humidity_reader(dht);
-    moisture_value = Moisture_reader(MoisturePIN);
-    
-    if ( waterpump_onoff.equals("on")){
-      digitalWrite(WaterPumpPIN, LOW);
-      Serial.println("Set to Low");
-    }
-    else if ( waterpump_onoff.equals("off")){
-      digitalWrite(WaterPumpPIN, HIGH);
-      Serial.println("Set to High");
-    }
-     
 
-    if (ac_onoff == "on"){
-      //Send AC-Temperature
-      ac.setTemp(int(ac_commandtemp));
-      ac.send();
-      //#if SEND_TOSHIBA_AC
-      //Serial.println("Sending IR command to A/C ...");
-      //ac.setTemp(26);
-      //ac.send();
-      // #endif 
-    }
-    else if (ac_onoff == "off"){
-      //turn AC off
-      //TODO
-    }
+
+    float t =  DHT_temperature_reader(dht);
+    float h =  DHT_humidity_reader(dht);
+    int moisture_value = Moisture_reader(MoisturePIN);
+    ac = AC_control(ac, ac_commandtemp, true);
+    Waterpump_onoff(WaterPumpPIN, true);
 
     Serial.println("temp value [in C]:");
     Serial.println(t);
@@ -263,44 +201,39 @@ void loop() {
     Serial.println("water_onoff [on,off]:");
     Serial.println(waterpump_onoff);
 
+      // Publish data to Google Sheets
+      static bool flag = false;
+      if (!flag){
+        client = new HTTPSRedirect(httpsPort);
+        client->setInsecure();
+        flag = true;
+        client->setPrintResponseBody(true);
+        client->setContentTypeHeader("application/json");
+      }
+      if (client != nullptr){
+        if (!client->connected()){
+          client->connect(host, httpsPort);
+        }
+      }
+      else{
+        Serial.println("Error creating client object!");
+      }
+
+
+      // Create json object string to send to Google Sheets
+      payload = payload_base + "\"" + t + "," + h + "," + ac_onoff + "," + ac_commandtemp + "," + moisture_value + "," + waterpump_onoff + " \" }";
+      
+      Serial.println("Publishing data...");
+      //Serial.println(payload);
+      if(client->POST(url, host, payload)){ 
+        // do stuff here if publish was successful
+      }
+      else{
+        // do stuff here if publish was not successful
+        Serial.println("Error while connecting");
+      }
+
   }
-   
-
-
-  // Publish data to Google Sheets
-
-  static bool flag = false;
-  if (!flag){
-    client = new HTTPSRedirect(httpsPort);
-    client->setInsecure();
-    flag = true;
-    client->setPrintResponseBody(true);
-    client->setContentTypeHeader("application/json");
-  }
-  if (client != nullptr){
-    if (!client->connected()){
-      client->connect(host, httpsPort);
-    }
-  }
-  else{
-    Serial.println("Error creating client object!");
-  }
-
-
-  // Create json object string to send to Google Sheets
-  payload = payload_base + "\"" + t + "," + h + "," + ac_onoff + "," + ac_commandtemp + "," + moisture_value + "," + waterpump_onoff + " \" }";
-  
-  Serial.println("Publishing data...");
-  //Serial.println(payload);
-  if(client->POST(url, host, payload)){ 
-     // do stuff here if publish was successful
-  }
-  else{
-    // do stuff here if publish was not successful
-    Serial.println("Error while connecting");
-  }
-
-
   delay(5000);
 
 }
