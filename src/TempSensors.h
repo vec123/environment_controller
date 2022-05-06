@@ -1,40 +1,34 @@
 #include <DHT.h>
 #include <Arduino.h>
+#include <Sensors.h>
 
-DHT DHT_sensor_init(int DHTPIN, int DHTTYPE){
-    DHT dht(DHTPIN, DHTTYPE);
-    return dht;
-}
+class Dht_sensor : public Sensor {
 
-DHT  DHT_sensor_setup(DHT dht){
-    dht.begin();
-    return dht;
-}
+  public:    
+    int t; 
+    int h;
+    int DHTPIN;
+    unsigned char DHTTYPE;
+    
+    void setup(int pin, unsigned char type){
+      DHTPIN = pin;
+      DHTTYPE = type;     
+    }
 
-float DHT_temperature_reader(DHT dht){  
-      float newD = dht.readTemperature();
-      // Read temperature as Fahrenheit (isFahrenheit = true)
-      //float newT = dht.readTemperature(true);
-      // if temperature read failed, don't change t value
-        if (isnan(newD)) {
-          Serial.println("Failed to read from DHT sensor!");
-        }
-        else {
-         // Serial.println(newD);
-        }
-        return newD;
- }
+    void read(){
+        DHT dht( DHTPIN,  DHTTYPE);
 
-float DHT_humidity_reader(DHT dht){  
-      float newD = dht.readHumidity();
-      // Read temperature as Fahrenheit (isFahrenheit = true)
-      //float newT = dht.readTemperature(true);
-      // if temperature read failed, don't change t value
-        if (isnan(newD)) {
-          Serial.println("Failed to read from DHT sensor!");
-        }
-        else {
-          // Serial.println(newD);
-        }
-        return newD;
- }
+        t = dht.readTemperature();
+        if (isnan(t)) {Serial.println("Failed to read from DHT sensor!");}
+        else {Serial.println(t);}
+
+        h = dht.readHumidity();
+        if (isnan(h)) {Serial.println("Failed to read from DHT sensor!");}
+        else {Serial.println(h);} 
+    }
+
+};
+
+
+    
+
