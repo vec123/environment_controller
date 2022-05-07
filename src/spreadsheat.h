@@ -1,30 +1,31 @@
 #include "HTTPSRedirect.h"
+#include <Arduino.h>
 
- HTTPSRedirect* spreadshead_setup(){ 
-    const char* Spreadsheat_name =  "EnvData_1";
-    const char *GScriptId = "AKfycby3x6638FKLE9_wmZMlt9z0zkco-kZxgOcPH8j1TPaeTElOQ2Txv3BuBH0UUe2LkI3w";
-    // Google Sheets setup (do not edit)
-    String payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"EnvData_1\", \"values\": ";
+class Spreadsheat_Publisher {
+  public:
+      char* Spreadsheat_name;
+      char* GScriptId;
+      // Google Sheets setup (do not edit)
+      String payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"EnvData_1\", \"values\": ";
+      const char* host = "script.google.com";
+      const int httpsPort = 443;
+      const char* fingerprint = "";
+      String url = String("/macros/s/") + GScriptId + "/exec";
+      HTTPSRedirect* client = nullptr;
+     
+      Spreadsheat_Publisher( char* name,  char* ID){
+        Spreadsheat_name = name;
+        GScriptId = ID;
+      }
 
-    const char* host = "script.google.com";
-    const int httpsPort = 443;
-    const char* fingerprint = "";
-    String url = String("/macros/s/") + GScriptId + "/exec";
-    HTTPSRedirect* client = nullptr;
-    return client;
-}
-
- HTTPSRedirect* connect(){
-        //HTTPS-redirect
+   void setup(){
+   //HTTPS-redirect
         client = new HTTPSRedirect(httpsPort);
         client->setInsecure();
         client->setPrintResponseBody(true);
         client->setContentTypeHeader("application/json");
-  
-
         Serial.print("Connecting to ");
         Serial.println(host);
-
         // Try to connect for a maximum of 5 times
         bool flag = false;
         for (int i=0; i<5; i++){ 
@@ -44,11 +45,10 @@
         }
         delete client;    // delete HTTPSRedirect object
         client = nullptr; // delete HTTPSRedirect object
+   }
 
-}
-
-void publish_to_spreadshead( HTTPSRedirect*  client, String payload){
-      // Publish data to Google Sheets
+   void publish(String payload){
+           // Publish data to Google Sheets
       static bool flag = false;
       if (!flag){
         client = new HTTPSRedirect(httpsPort);
@@ -65,14 +65,14 @@ void publish_to_spreadshead( HTTPSRedirect*  client, String payload){
       else{
         Serial.println("Error creating client object!");
       }
-      
+      // Create json object string to send to Google Sheets
       Serial.println("Publishing data...");
       //Serial.println(payload);
       if(client->POST(url, host, payload)){ 
-        // do stuff here if publish was successful
+        Serial.println("Publish sucess");
       }
       else{
-        // do stuff here if publish was not successful
         Serial.println("Error while connecting");
       }
-}
+   }
+};

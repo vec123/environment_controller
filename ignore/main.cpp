@@ -4,7 +4,6 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-
 #include <TempSensors.h>
 #include <Moisturesensors.h>
 #include <AC-Control.h>
@@ -73,7 +72,6 @@ unsigned long previousMillis = 0;
 const long interval = 100; 
 
 void setup(){
-  
       //buildin LED
       pinMode(LED, OUTPUT);
       Serial.begin(115200);
@@ -100,8 +98,6 @@ void setup(){
       }
 
       //HTML-server
-
-
       server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/website.html", String(), false, processor);
       });
