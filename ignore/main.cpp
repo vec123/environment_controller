@@ -132,12 +132,12 @@ void setup(){
    //HTTPS-redirect
     client = new HTTPSRedirect(httpsPort);
     client->setInsecure();
-        client->setPrintResponseBody(true);
-        client->setContentTypeHeader("application/json");
+    client->setPrintResponseBody(true);
+    client->setContentTypeHeader("application/json");
   
 
-        Serial.print("Connecting to ");
-        Serial.println(host);
+    Serial.print("Connecting to ");
+    Serial.println(host);
 
         // Try to connect for a maximum of 5 times
         bool flag = false;
@@ -168,12 +168,10 @@ void loop() {
    digitalWrite(LED, LOW);
    delay(1000);
 
-  
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     // save the last time you updated the DHT values
     previousMillis = currentMillis;
-
 
     float t =  DHT_temperature_reader(dht);
     float h =  DHT_humidity_reader(dht);
@@ -211,7 +209,6 @@ void loop() {
       else{
         Serial.println("Error creating client object!");
       }
-
 
       // Create json object string to send to Google Sheets
       payload = payload_base + "\"" + t + "," + h + "," + ac_onoff + "," + ac_commandtemp + "," + moisture_value + "," + waterpump_onoff + " \" }";
