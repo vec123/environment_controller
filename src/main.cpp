@@ -27,15 +27,13 @@ int lower_temp_threshold = desired_room_temp - 1;
 const char* ssid = "Vodafone-B0F4";
 const char* password = "tmUM66hFETHN3uTd";
 
-
 void setup(){
     Serial.begin(115200);
-
+    pinMode(LED, OUTPUT);
+    
     WiFi_setup(ssid, password);
     Serial.print(WiFi.localIP());
 
-    Serial.println("on");
-    pinMode(LED, OUTPUT);
     dht1.setup(DHTPIN, DHTTYPE);
     dht1.label("first temp sensor");
 
@@ -51,7 +49,6 @@ void setup(){
     publisher.setup();
     String payload = String("\"") + "Date" + "," + "Time" + "," + "Temperature" + "," + "Humidity" +  "," + "Earth_Moisture" + " \" }"; 
     publisher.publish(payload, "set_title");
-
 }
 
 void loop() {
@@ -75,5 +72,4 @@ void loop() {
     // String payload = String("\"") + dht1.t + "," + dht1.h +  " \" }"; 
     String payload = String("\"") + dht1.t + "," + dht1.h +  "," + earth1.myValue + " \" }"; 
     publisher.publish(payload,  "insert_row");
-
 }

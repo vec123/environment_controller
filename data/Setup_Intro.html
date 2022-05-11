@@ -1,0 +1,33 @@
+
+        <!DOCTYPE HTML><html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+          <link rel="stylesheet" type="text/css" href="style.css">
+        </head>
+        <body>
+          <h2>Setup-Page</h2>
+          <p>
+            Hi, we will now start the Setup. Please Input which Sensors, Actuators you use and how many. Default is 0. 
+            In the following the possibilities are listed. For each Sensor, Actuator that you use you will have to specify 
+            certain parameters
+          </p>
+          <p>
+            <form action="/get"></form>
+            <input type="number" class="form-control" name="DHT-Sensors" value="0", step="1",  min="0" max="10" >
+            <input type="number" class="form-control" name="Earth-Moisture-Sensors" value="0", step="1", min="0" max="10" >
+            <input type="number" class="form-control" name="AC-Actuator" value="0", step="1",  min="0" max="10">
+            <input type="number" class="form-control" name="WaterPumps" value="0", step="1", min="0" max="10">
+            <input type="submit" value="Submit",  onclick="submitMessage()">
+          </p>
+        </body>
+
+        <script>
+        
+        function submitMessage() {
+            alert("Saved value to ESP SPIFFS");
+            setTimeout(function(){ document.location.reload(false); }, 500);
+          }
+
+        </script>
+</html>

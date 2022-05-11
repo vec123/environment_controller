@@ -1,0 +1,31 @@
+
+        <!DOCTYPE HTML><html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+          <link rel="stylesheet" type="text/css" href="style.css">
+        </head>
+        <body>
+          <h2>DHT-Sensor Setup</h2>
+          <p>
+            Please input the name of this DHT-Sensor, its type and the corresponding Pin.
+            The DHT-sensor logs the measured Temperature and Humidity.
+          </p>
+          <p>
+            <form action="/get"></form>
+            <input type="text" class="form-control" name="Sensor label" value="Dht-Sensor" >
+            <input type="number" class="form-control" name="Sensor Pin" value="0", step="1",  min="0" max="50">
+            <input type="text" class="form-control" name="Sensor Type" value="DHT11" >
+            <input type="submit" value="Submit",  onclick="submitMessage()">
+          </p>
+        </body>
+
+        <script>
+        
+        function submitMessage() {
+            alert("Saved value to ESP SPIFFS");
+            setTimeout(function(){ document.location.reload(false); }, 500);
+          }
+
+        </script>
+</html>

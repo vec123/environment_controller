@@ -1,0 +1,78 @@
+
+        <!DOCTYPE HTML><html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+          <link rel="stylesheet" type="text/css" href="style.css">
+        </head>
+        <body>
+          <h2>ESP8266 DHT Server</h2>
+          
+          <p>
+            <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
+            <span class="dht-labels">Temperature</span> 
+            <span id="temperature">%TEMPERATURE%</span>
+            <sup class="units">&deg;C</sup>
+          </p>
+          <p>
+            <i class="fas fa-tint" style="color:#00add6;"></i> 
+            <span class="dht-labels">Humidity</span>
+            <span id="humidity">%HUMIDITY%</span>
+            <sup class="units">%</sup>
+          </p>
+
+          <p>
+            <form action="/get">
+              <label for="fname">AC-OnOff</label>
+               <input type="text" name="ac-onoff" ><br><br>
+              <input type="submit" value="Submit",  onclick="submitMessage()">
+            </form>
+          </p>
+          <p>
+            <form action="/get">
+              <label for="fname">Ac-Temperature</label>
+              <input type="number" class="form-control" name="ac-temp", step="0.1",  min="-10" max="50" ><br><br>
+              <input type="submit" value="Submit",  onclick="submitMessage()">
+            </form>
+          </p>
+
+          <p>
+            
+            <form action="/get">
+              <label for="fname">WaterPump-OnOff</label>
+              <input type="text" name="water-onoff"  ><br><br>
+              <input type="submit" value="Submit",  onclick="submitMessage()">
+            </form>
+          </p>
+
+
+        </body>
+        <script>
+        setInterval(function ( ) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("temperature").innerHTML = this.responseText;
+            }
+          };
+          xhttp.open("GET", "/temperature", true);
+          xhttp.send();
+        }, 10000 ) ;
+        setInterval(function ( ) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              document.getElementById("humidity").innerHTML = this.responseText;
+            }
+          };
+          xhttp.open("GET", "/humidity", true);
+          xhttp.send();
+        }, 10000 ) ;
+
+        function submitMessage() {
+            alert("Saved value to ESP SPIFFS");
+            setTimeout(function(){ document.location.reload(false); }, 500);
+          }
+
+        </script>
+</html>
