@@ -90,7 +90,7 @@ void setup(){
       Waterpump_setup(WaterPumpPIN);
 
 
-     //SPIFFS
+      //SPIFFS
       Serial.print("0");
       if(!SPIFFS.begin()){
            Serial.println("An Error has occurred while mounting SPIFFS");

@@ -5,6 +5,7 @@
 #include <publish_data.h>
 #include <ESPAsyncTCP.h>
 #include <WiFi.h>
+#include <website_handle.h>
 
 #define DHTPIN 12
 #define DHTTYPE DHT11
@@ -18,21 +19,43 @@ Moisture_sensor earth1;
 Waterpump pump1;
 ACActuator ac1;
 Spreadsheat_Publisher publisher("EnvData_1", "AKfycbyBYzUiXjYnOUgKIMmJ5ovr9txebh43ntbn2m96nGGbLCTNULVZMsZmkWS9kKQGWwqe");
+Web_handler web_handle;
 
 int moisture_threshold = 30;
 int desired_room_temp = 25;
 int upper_temp_threshold = desired_room_temp + 1;
 int lower_temp_threshold = desired_room_temp - 1;
 
-const char* ssid = "Vodafone-B0F4";
-const char* password = "tmUM66hFETHN3uTd";
+//const char* ssid = "Vodafone-B0F4";
+//const char* password = "tmUM66hFETHN3uTd";
 
+
+const char* ssid = "Redmi 10";
+const char* password = "bu5tfzaaxav9r5b";
+AsyncWebServer server(80);
 void setup(){
     Serial.begin(115200);
     pinMode(LED, OUTPUT);
     
     WiFi_setup(ssid, password);
     Serial.print(WiFi.localIP());
+
+    //SPIFFS
+      Serial.print("0");
+      if(!SPIFFS.begin()){
+           Serial.println("An Error has occurred while mounting SPIFFS");
+          return;
+      }
+   // web_handle.load_sites(server);
+
+      server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/SetupIntro.html", String(), false);
+      });
+      // Route to load style.css file
+      server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/style.css", "text/css");
+      });
+      server.begin();
 
     dht1.setup(DHTPIN, DHTTYPE);
     dht1.label("first temp sensor");

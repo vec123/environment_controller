@@ -13,12 +13,20 @@
             certain parameters
           </p>
           <p>
-            <form action="/get"></form>
-            <input type="number" class="form-control" name="DHT-Sensors" value="0", step="1",  min="0" max="10" >
-            <input type="number" class="form-control" name="Earth-Moisture-Sensors" value="0", step="1", min="0" max="10" >
-            <input type="number" class="form-control" name="AC-Actuator" value="0", step="1",  min="0" max="10">
-            <input type="number" class="form-control" name="WaterPumps" value="0", step="1", min="0" max="10">
-            <input type="submit" value="Submit",  onclick="submitMessage()">
+            <form action="/get">
+              <label for="DHT-Sensors">DHT-Sensors:</label>
+              <input type="number" class="form-control" id="DHT-Sensors" name="DHT-Sensors" value="0", step="1",  min="0" max="10" ><br>
+              
+              <label for="Earth-Moisture-Sensors:">Earth-Moisture-Sensors:</label>
+              <input type="number" class="form-control" id="Earth-Moisture-Sensors:" name="Earth-Moisture-Sensors" value="0", step="1", min="0" max="10" ><br>
+             
+              <label for="AC-Actuator">AC-Actuator:</label>
+              <input type="number" class="form-control" id="AC-Actuator" name="AC-Actuator" value="0", step="1",  min="0" max="10"><br>
+              
+              <label for="WaterPumps">"WaterPumps:</label>
+              <input type="number" class="form-control" id="WaterPumps" name="WaterPumps" value="0", step="1", min="0" max="10"><br>
+              <input type="submit" value="Submit",  onclick="submitMessage()">
+          </form>
           </p>
         </body>
 

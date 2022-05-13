@@ -8,14 +8,15 @@
         <body>
           <h2>AC-Actuator Setup</h2>
           <p>
-            Please input the name of this AC-Actuator, it's type the corresponding Pin.
-            The AC-Actuator controlls the rooms temperature to a desired value (default is 25 Celsius). 
+            Please input the name of this AC-Actuator, it's type and the corresponding Pin.
+            The AC-Actuator controlls the room temperature to a desired value (default is 25 Celsius). 
             Don't worry, you can change the desired temperature value during the execution. 
           </p>
           <p>
             <form action="/get"></form>
             <input type="text" class="form-control" name="AC label" value="Water-Pump-Actuator" >
             <input type="number" class="form-control" name="AC Pin" value="0", step="1",  min="0" max="50">
+            <input type="test" class="form-control" name="AC type" value="Toshiba">
             <input type="number" class="form-control" name="desired temperature" value="25", step="1",  min="-50" max="50">
             <input type="submit" value="Submit",  onclick="submitMessage()">
           </p>
